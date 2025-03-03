@@ -77,7 +77,7 @@ class _MyHomePageState extends State<LoginView> {
                     }
                   } else {
                     if (context.mounted) {
-                      await showErrorDialog(context, e.message ?? 'An error occured');
+                      await showErrorDialog(context, e.code);
                     }
                   }
                 } catch (e) {
