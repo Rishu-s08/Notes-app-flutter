@@ -1,8 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
-
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -13,9 +12,8 @@ class LoginView extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<LoginView> {
-
   late final TextEditingController _email;
-  late final TextEditingController _password; 
+  late final TextEditingController _password;
 
   @override
   void initState() {
@@ -34,74 +32,85 @@ class _MyHomePageState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
+      appBar: AppBar(title: const Text('Login')),
       body: Column(
-            children: [
-              TextField(controller: _email,
-                        keyboardType: TextInputType.emailAddress,
-                        scrollPadding: EdgeInsets.all(5.0),
-                        decoration: const InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Enter your email',),
-              ),
-              TextField(controller: _password,
-                        obscureText: true,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        keyboardType: TextInputType.visiblePassword,
-                        decoration: const InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Enter your password',
-                        ),
-              ),
-              TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                try{
-                  final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-                  devtools.log(userCredential.toString());
-                  final user = FirebaseAuth.instance.currentUser;
-                  if(user?.emailVerified ?? false){
-                    if (context.mounted) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (_) => false);
-                  }
-                  }else{
-                    if (context.mounted) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (_) => false);
-                    }
-                  }
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'invalid-credential') {
-                    if (context.mounted) {
-                      await showErrorDialog(context, 'email or password is incorrect');
-                    }
-                  }else if (e.code == 'invalid-email') {
-                    if (context.mounted) {
-                      await showErrorDialog(context, 'Invalid email');
-                    }
-                  } else {
-                    if (context.mounted) {
-                      await showErrorDialog(context, e.code);
-                    }
-                  }
-                } catch (e) {
+        children: [
+          TextField(
+            controller: _email,
+            keyboardType: TextInputType.emailAddress,
+            scrollPadding: EdgeInsets.all(5.0),
+            decoration: const InputDecoration(
+              labelText: 'Email',
+              hintText: 'Enter your email',
+            ),
+          ),
+          TextField(
+            controller: _password,
+            obscureText: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            keyboardType: TextInputType.visiblePassword,
+            decoration: const InputDecoration(
+              labelText: 'Password',
+              hintText: 'Enter your password',
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = _email.text;
+              final password = _password.text;
+              try {
+                await AuthService.firebase().logIn(
+                  email: email,
+                  password: password,
+                );
+                final user = AuthService.firebase().currentUser;
+                if (user?.isEmailVerified ?? false) {
                   if (context.mounted) {
-                    await showErrorDialog(context, e.toString());
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil(notesRoute, (_) => false);
+                  }
+                } else {
+                  if (context.mounted) {
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil(verifyEmailRoute, (_) => false);
                   }
                 }
-              },
-              child: const Text('Login'),
-            ),
-            TextButton(onPressed: (){
-              Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
+              } on UserNotFoundAuthException {
+                if (context.mounted) {
+                  await showErrorDialog(
+                    context,
+                    'email or password is incorrect',
+                  );
+                }
+              } on InvalidEmailAuthException {
+                if (context.mounted) {
+                  await showErrorDialog(context, 'Invalid email');
+                }
+              } on WrongPasswordAuthException {
+                if (context.mounted) {
+                  await showErrorDialog(context, 'Wrong password');
+                }
+              } on GenericAuthException {
+                if (context.mounted) {
+                  await showErrorDialog(context, 'Authentication failed');
+                }
+              }
             },
-            child: const Text('Not registered yet? Register here')
-           ),
-          ],
-        ),
+            child: const Text('Login'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil(registerRoute, (route) => false);
+            },
+            child: const Text('Not registered yet? Register here'),
+          ),
+        ],
+      ),
     );
   }
 }
