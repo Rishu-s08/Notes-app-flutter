@@ -63,8 +63,15 @@ class _MyHomePageState extends State<LoginView> {
                 try{
                   final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
                   devtools.log(userCredential.toString());
-                  if (context.mounted) {
+                  final user = FirebaseAuth.instance.currentUser;
+                  if(user?.emailVerified ?? false){
+                    if (context.mounted) {
                     Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (_) => false);
+                  }
+                  }else{
+                    if (context.mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (_) => false);
+                    }
                   }
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'invalid-credential') {
