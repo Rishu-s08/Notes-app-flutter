@@ -31,7 +31,7 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Notes'),
+        title: const Text('Your Notes'),
         actions: [
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
@@ -77,6 +77,11 @@ class _NotesViewState extends State<NotesView> {
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () => Navigator.of(context).pushNamed(newNoteRoute),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }
