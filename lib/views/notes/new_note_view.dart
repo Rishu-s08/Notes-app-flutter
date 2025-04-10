@@ -80,13 +80,18 @@ class _NewNoteViewState extends State<NewNoteView> {
             case ConnectionState.done:
               _note = Snapshot.data as DatabaseNote;
               _setupTextControllerListener();
-              return TextField(
-                controller: _textController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  hintText: "Type your note here...",
-                  border: InputBorder.none,
+              return Padding(
+                padding: EdgeInsets.all(16),
+                child: TextField(
+                  controller: _textController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                  decoration: const InputDecoration(
+                    hintText: "Type your note here...",
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.all(16.0),
+                  ),
                 ),
               );
             default:
