@@ -9,11 +9,11 @@ import 'package:path_provider/path_provider.dart';
 class NotesService {
   Database? _db;
 
-  List<DatabaseNotes> _notes = [];
+  List<DatabaseNote> _notes = [];
   final _notesStreamController =
-      StreamController<List<DatabaseNotes>>.broadcast();
+      StreamController<List<DatabaseNote>>.broadcast();
 
-  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   //making singleton
   static final NotesService _shared = NotesService._sharedInstance();
@@ -39,8 +39,8 @@ class NotesService {
     _notesStreamController.add(_notes);
   }
 
-  Future<DatabaseNotes> updateNote({
-    required DatabaseNotes note,
+  Future<DatabaseNote> updateNote({
+    required DatabaseNote note,
     required String text,
   }) async {
     await _ensureDbIsOpen();
@@ -66,15 +66,15 @@ class NotesService {
     }
   }
 
-  Future<Iterable<DatabaseNotes>> getAllNote() async {
+  Future<Iterable<DatabaseNote>> getAllNote() async {
     await _ensureDbIsOpen();
 
     final db = _getDatabaseOrThrow();
     final notes = await db.query(noteTable);
-    return notes.map((noteRow) => DatabaseNotes.fromRow(noteRow));
+    return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
 
-  Future<DatabaseNotes> getNote({required int id}) async {
+  Future<DatabaseNote> getNote({required int id}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final notes = await db.query(
@@ -86,7 +86,7 @@ class NotesService {
     if (notes.isEmpty) {
       throw CouldNotFindNoteException();
     } else {
-      final note = DatabaseNotes.fromRow(notes.first);
+      final note = DatabaseNote.fromRow(notes.first);
       _notes.removeWhere((notel) => notel.id == id);
       _notes.add(note);
       _notesStreamController.add(_notes);
@@ -120,7 +120,7 @@ class NotesService {
     }
   }
 
-  Future<DatabaseNotes> createNote({required DatabaseUser owner}) async {
+  Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
 
@@ -136,7 +136,7 @@ class NotesService {
       textColumn: text,
       isSyncedWithCloudColumn: 1,
     });
-    final note = DatabaseNotes(
+    final note = DatabaseNote(
       id: noteId,
       userId: owner.id,
       isSyncedWithCloud: true,
@@ -272,20 +272,20 @@ class DatabaseUser {
   int get hashCode => id.hashCode;
 }
 
-class DatabaseNotes {
+class DatabaseNote {
   final int id;
   final int userId;
   final String text;
   final bool isSyncedWithCloud;
 
-  DatabaseNotes({
+  DatabaseNote({
     required this.id,
     required this.userId,
     required this.isSyncedWithCloud,
     required this.text,
   });
 
-  DatabaseNotes.fromRow(Map<String, Object?> map)
+  DatabaseNote.fromRow(Map<String, Object?> map)
     : id = map[idColumn] as int,
       userId = map[userIdColumn] as int,
       text = map[textColumn] as String,
@@ -298,7 +298,7 @@ class DatabaseNotes {
   }
 
   @override
-  bool operator ==(covariant DatabaseNotes other) {
+  bool operator ==(covariant DatabaseNote other) {
     return id == other.id;
   }
 
