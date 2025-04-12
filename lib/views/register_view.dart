@@ -66,7 +66,7 @@ class _MyHomePageState extends State<RegisterView> {
                 );
                 if (context.mounted) {
                   Navigator.of(context).pushNamed(verifyEmailRoute);
-                  final user = AuthService.firebase().currentUser;
+                  // final user = AuthService.firebase().currentUser;
                   await AuthService.firebase().sendEmailVerification();
                 }
               } on WeakPasswordAuthException {
