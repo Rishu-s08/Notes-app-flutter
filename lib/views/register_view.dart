@@ -8,10 +8,10 @@ class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
   @override
-  State<RegisterView> createState() => _MyHomePageState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _MyHomePageState extends State<RegisterView> {
+class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 

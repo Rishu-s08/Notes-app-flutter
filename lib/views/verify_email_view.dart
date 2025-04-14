@@ -30,9 +30,11 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             ElevatedButton(
               onPressed: () async {
                 await AuthService.firebase().logOut();
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(loginRoute, (route) => false);
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil(loginRoute, (route) => false);
+                }
               },
               child: const Text('Back to login'),
             ),
