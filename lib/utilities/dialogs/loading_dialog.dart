@@ -11,17 +11,17 @@ CloseDialog showLoadingDialog({
       mainAxisSize: MainAxisSize.min,
       children: [
         const CircularProgressIndicator(),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10.0),
         Text(text),
       ],
     ),
   );
+
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (context) => dialog,
   );
-  return () {
-    Navigator.of(context).pop();
-  };
+
+  return () => Navigator.of(context).pop();
 }

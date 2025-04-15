@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
 import 'package:mynotes/services/auth/bloc/auth_event.dart';
 import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/utilities/dialogs/error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+  const RegisterView({Key? key}) : super(key: key);
 
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  _RegisterViewState createState() => _RegisterViewState();
 }
 
 class _RegisterViewState extends State<RegisterView> {
@@ -19,9 +21,9 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   void initState() {
-    super.initState();
     _email = TextEditingController();
     _password = TextEditingController();
+    super.initState();
   }
 
   @override
@@ -37,44 +39,38 @@ class _RegisterViewState extends State<RegisterView> {
       listener: (context, state) async {
         if (state is AuthStateRegistering) {
           if (state.exception is WeakPasswordAuthException) {
-            await showErrorDialog(
-              context,
-              'The password provided is too weak.',
-            );
+            await showErrorDialog(context, 'Weak password');
           } else if (state.exception is EmailAlreadyInUseAuthException) {
             await showErrorDialog(context, 'Email is already in use');
-          } else if (state.exception is InvalidEmailAuthException) {
-            await showErrorDialog(context, 'The email provided is invalid.');
           } else if (state.exception is GenericAuthException) {
-            await showErrorDialog(
-              context,
-              'An error occurred while trying to register.',
-            );
+            await showErrorDialog(context, 'Failed to register');
+          } else if (state.exception is InvalidEmailAuthException) {
+            await showErrorDialog(context, 'Invalid email');
           }
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Register')),
+        appBar: AppBar(
+          title: const Text('Register'),
+        ),
         body: Column(
           children: [
             TextField(
               controller: _email,
+              enableSuggestions: false,
+              autocorrect: false,
               keyboardType: TextInputType.emailAddress,
-              scrollPadding: EdgeInsets.all(5.0),
               decoration: const InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
+                hintText: 'Enter your email here',
               ),
             ),
             TextField(
               controller: _password,
               obscureText: true,
-              autocorrect: false,
               enableSuggestions: false,
-              keyboardType: TextInputType.visiblePassword,
+              autocorrect: false,
               decoration: const InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
+                hintText: 'Enter your password here',
               ),
             ),
             TextButton(
@@ -82,17 +78,22 @@ class _RegisterViewState extends State<RegisterView> {
                 final email = _email.text;
                 final password = _password.text;
                 context.read<AuthBloc>().add(
-                  AuthEventRegister(email, password),
-                );
+                      AuthEventRegister(
+                        email,
+                        password,
+                      ),
+                    );
               },
               child: const Text('Register'),
             ),
             TextButton(
               onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventLogOut());
+                context.read<AuthBloc>().add(
+                      const AuthEventLogOut(),
+                    );
               },
-              child: const Text('Already have an account? Login here'),
-            ),
+              child: const Text('Already registered? Login here!'),
+            )
           ],
         ),
       ),
