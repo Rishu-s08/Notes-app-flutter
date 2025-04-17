@@ -11,7 +11,7 @@ import 'package:mynotes/views/notes/notes_list_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show ReadContext;
 
 class NotesView extends StatefulWidget {
-  const NotesView({Key? key}) : super(key: key);
+  const NotesView({super.key});
 
   @override
   _NotesViewState createState() => _NotesViewState();
@@ -45,9 +45,7 @@ class _NotesViewState extends State<NotesView> {
                 case MenuAction.logout:
                   final shouldLogout = await showLogOutDialog(context);
                   if (shouldLogout) {
-                    context.read<AuthBloc>().add(
-                          const AuthEventLogOut(),
-                        );
+                    context.read<AuthBloc>().add(const AuthEventLogOut());
                   }
               }
             },
@@ -59,7 +57,7 @@ class _NotesViewState extends State<NotesView> {
                 ),
               ];
             },
-          )
+          ),
         ],
       ),
       body: StreamBuilder(
@@ -76,10 +74,9 @@ class _NotesViewState extends State<NotesView> {
                     await _notesService.deleteNote(documentId: note.documentId);
                   },
                   onTap: (note) {
-                    Navigator.of(context).pushNamed(
-                      createOrUpdateNoteRoute,
-                      arguments: note,
-                    );
+                    Navigator.of(
+                      context,
+                    ).pushNamed(createOrUpdateNoteRoute, arguments: note);
                   },
                 );
               } else {

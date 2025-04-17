@@ -73,14 +73,16 @@ class FirebaseAuthProvider implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+      if (e.code == 'invalid-credential') {
         throw UserNotFoundAuthException();
-      } else if (e.code == 'wrong-password') {
+      } else if (e.code == 'firebase_auth/wrong-password') {
         throw WrongPasswordAuthException();
       } else {
+        print(e.code);
         throw GenericAuthException();
       }
-    } catch (_) {
+    } catch (e) {
+      print('Error: $e');
       throw GenericAuthException();
     }
   }
@@ -102,6 +104,24 @@ class FirebaseAuthProvider implements AuthProvider {
       await user.sendEmailVerification();
     } else {
       throw UserNotLoggedInAuthException();
+    }
+  }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: toEmail);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'firebase_auth/invalid-email':
+          throw InvalidEmailAuthException();
+        case 'firebase_auth/user-not-found':
+          throw UserNotFoundAuthException();
+        default:
+          throw GenericAuthException();
+      }
+    } catch (_) {
+      throw GenericAuthException();
     }
   }
 }
